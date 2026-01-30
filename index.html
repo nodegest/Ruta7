@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>RUTA7 — Planifica con IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="bg">
+    <div class="noise"></div>
+    <div class="blobs">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+      <span class="blob b3"></span>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">RUTA<span>7</span></div>
+      <div class="badge">MVP</div>
+    </div>
+    <nav class="nav">
+      <button class="navBtn active" data-view="create">Crear</button>
+      <button class="navBtn" data-view="result">Resultado</button>
+      <button class="navBtn" data-view="saved">Mis itinerarios</button>
+    </nav>
+    <div class="actions">
+      <button id="btnSeed" class="btn ghost">Cargar POIs demo</button>
+      <button id="btnClear" class="btn ghost">Limpiar</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- CREATE -->
+    <section id="view-create" class="view active">
+      <div class="grid2">
+        <div class="card hero">
+          <div class="heroText">
+            <h1>Tu viaje, tu aventura.<br/><span class="gradText">Planificado con IA.</span></h1>
+            <p>
+              Arma una ruta en Aysén con presupuesto, km/l y días. Calcula combustible + estimación de costos y
+              recibe un itinerario con recomendaciones.
+            </p>
+            <div class="chips">
+              <span class="chip">Aventura</span>
+              <span class="chip">Rutas</span>
+              <span class="chip">Presupuesto</span>
+              <span class="chip">PDF</span>
+            </div>
+          </div>
+
+          <div class="miniStats">
+            <div class="stat">
+              <div class="statTitle">Modo</div>
+              <div class="statValue">Demo local</div>
+            </div>
+            <div class="stat">
+              <div class="statTitle">Región</div>
+              <div class="statValue">Aysén</div>
+            </div>
+            <div class="stat">
+              <div class="statTitle">Estilo</div>
+              <div class="statValue">Meta-ish UI</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card formCard">
+          <h2>Crea tu itinerario</h2>
+          <p class="muted">Máximo 5 inputs. Rápido de probar con usuarios.</p>
+
+          <form id="itineraryForm" class="form">
+            <div class="row">
+              <label>Presupuesto</label>
+              <div class="field">
+                <input id="budget" type="number" min="0" step="1000" value="500000" required />
+                <span class="suffix">CLP</span>
+              </div>
+            </div>
+
+            <div class="row">
+              <label>Días de viaje</label>
+              <div class="field">
+                <input id="days" type="number" min="1" max="30" value="5" required />
+                <span class="suffix">días</span>
+              </div>
+            </div>
+
+            <div class="row">
+              <label>Consumo del vehículo</label>
+              <div class="field">
+                <input id="kml" type="number" min="1" max="50" step="0.1" value="12" required />
+                <span class="suffix">km/l</span>
+              </div>
+            </div>
+
+            <div class="row">
+              <label>Precio combustible (referencia)</label>
+              <div class="field">
+                <input id="fuelPrice" type="number" min="0" step="1" value="1400" required />
+                <span class="suffix">CLP/l</span>
+              </div>
+            </div>
+
+            <div class="row">
+              <label>Tipo de viaje</label>
+              <div class="field">
+                <select id="style" required>
+                  <option value="Aventura" selected>Aventura</option>
+                  <option value="Familiar">Familiar</option>
+                  <option value="Relax">Relax</option>
+                  <option value="Mochilero">Mochilero</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row2">
+              <button class="btn primary" type="submit">
+                <span class="btnIcon">🧭</span> Generar ruta
+              </button>
+              <button class="btn soft" type="button" id="btnTryExample">
+                Probar ejemplo rápido
+              </button>
+            </div>
+
+            <p class="hint">
+              Nota: Esta demo usa cálculo + “IA simulada” local. En producción, conectas a
+              Firebase Functions para Google Maps + LLM + PDF real.
+            </p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="view-result" class="view">
+      <div class="grid2 resultGrid">
+        <div class="card mapCard">
+          <div class="mapHeader">
+            <h2>Tu ruta ideal</h2>
+            <div class="pill">Itinerario optimizado para tu presupuesto</div>
+          </div>
+
+          <!-- Placeholder de mapa (en real, Google Maps embed o SDK) -->
+          <div class="mapPlaceholder" id="mapPlaceholder">
+            <div class="mapOverlay">
+              <div class="mapTitle">Mapa (demo)</div>
+              <div class="mapSub">Aquí iría Google Maps / polyline</div>
+            </div>
+          </div>
+
+          <div class="summaryRow">
+            <div class="summaryCard">
+              <div class="k">Distancia</div>
+              <div class="v" id="sumDistance">—</div>
+            </div>
+            <div class="summaryCard">
+              <div class="k">Tiempo</div>
+              <div class="v" id="sumTime">—</div>
+            </div>
+            <div class="summaryCard">
+              <div class="k">Combustible</div>
+              <div class="v" id="sumFuel">—</div>
+            </div>
+            <div class="summaryCard">
+              <div class="k">Total</div>
+              <div class="v" id="sumTotal">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card sideCard">
+          <div class="sideTop">
+            <h3>Itinerario</h3>
+            <div class="sideBtns">
+              <button class="btn soft" id="btnSave">Guardar</button>
+              <button class="btn primary" id="btnPDF">Descargar PDF</button>
+            </div>
+          </div>
+
+          <div class="accordion" id="itineraryAccordion"></div>
+
+          <div class="miniSection">
+            <h4>Fauna y flora</h4>
+            <div class="list" id="faunaFlora">—</div>
+          </div>
+
+          <div class="miniSection">
+            <h4>Dato curioso</h4>
+            <div class="quote" id="funFact">—</div>
+          </div>
+
+          <div class="miniSection">
+            <h4>Desglose (estimado)</h4>
+            <div class="costGrid">
+              <div class="costItem"><span>Combustible</span><b id="costFuel">—</b></div>
+              <div class="costItem"><span>Tours</span><b id="costTours">—</b></div>
+              <div class="costItem"><span>Camping</span><b id="costCamping">—</b></div>
+              <div class="costItem"><span>Comida</span><b id="costFood">—</b></div>
+            </div>
+          </div>
+
+          <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAVED -->
+    <section id="view-saved" class="view">
+      <div class="card">
+        <div class="savedHeader">
+          <div>
+            <h2>Mis itinerarios</h2>
+            <p class="muted">Guardados localmente (localStorage) para este MVP.</p>
+          </div>
+          <button class="btn soft" id="btnDeleteAll">Eliminar todos</button>
+        </div>
+
+        <div id="savedList" class="savedList"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>Ruta7 MVP UI • Degradados + flat + rounded</div>
+    <div class="muted">Para producción: Firebase + Functions + Google Maps + IA + PDF real</div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
